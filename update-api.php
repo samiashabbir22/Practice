@@ -20,24 +20,41 @@ $city=$data['city'];
 
 include "config.php";
 
-$sql="UPDATE students_data SET name='{$name}',age={$age},city='{$city}' WHERE id='{$id}'";
+if(isset($data['name']) && !empty($data['name']) OR 
+   isset($data['age']) && !empty($data['age']) OR 
+   isset($data['city']) && !empty($data['city']))
+   {
 
-$result= mysqli_query($conn, $sql) or die("SQL query failed");
+    $sql="UPDATE students_data SET name='{$name}',age={$age},city='{$city}' WHERE id='{$id}'";
 
-if($result)
-{
+    $result= mysqli_query($conn, $sql) or die("SQL query failed");
+    
+    if($result)
+    {
+    
+        echo json_encode(array(
+                        'message'=>'Data Updated Successfully',
+                        'status'=>'success'));
+    
+    }
+    else
+    {
+        echo json_encode(array(
+                        'message'=>'No Data Updated, Try Again!',
+                        'status'=>'failed'));
+       
+    }
+
+   }
+    else
+   {
 
     echo json_encode(array(
-                    'message'=>'Data Updated Successfully',
-                    'status'=>'success'));
+        'message'=>'Incomplete params , Try Again!',
+        'status'=>'failed'));
 
-}
-else
-{
-    echo json_encode(array(
-                    'message'=>'No Data Updated, Try Again!',
-                    'status'=>'failed'));
-   
-}
+   }
+
+
 
 ?>

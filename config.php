@@ -1,8 +1,7 @@
 <?php
+$conn=mysqli_connect("172.16.238.12","root","","students");
 
-$conn=mysqli_connect("127.0.0.1","root","","students")
-      or 
-      die("connection failed");
-
-
+if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+  }
 ?>
