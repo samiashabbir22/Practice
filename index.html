@@ -17,13 +17,16 @@
   <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="/assets/js/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="g-sidenav-show  bg-gray-200">
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <!-- Navbar -->
+
     <div class="container-fluid py-1 px-3">
-          <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur" data-scroll="true">
+      <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur" data-scroll="true">
+        <a href="http://practice-api.loc/add-student.html"><button type="button" class="btn btn-dark" style="background-color: #009FBD;">Add Student</button></a> 
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
           <div class="ms-md-auto pe-md-3 d-flex align-items-center">
             <div class="input-group input-group-outline">
@@ -39,13 +42,14 @@
         </div>
       </div>
     </nav>
+
     <!-- End Navbar -->
     <div class="container-fluid py-4">
       <div class="row">
         <div class="col-12">
           <div class="card my-4">
             <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-              <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+              <div class="input-group-outline bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
                 <h6 class="text-white text-capitalize ps-3">Students Details</h6>
               </div>
             </div>
@@ -114,6 +118,7 @@
               </div>
             </form>        
       </div>
+    
           <div class="modal-footer">
             <button type="button" id="close-btn" class="btn btn btn-info" style="background-color: #7AA874;" data-dismiss="modal">Close</button>
             <button type="button" id="save-edit" class="btn btn btn-info" style="background-color: #E78895;">Save changes</button>
@@ -135,10 +140,74 @@
     // console.log(baseurl+'api-get.php');
     $(document).ready(function()
     {
+      var baseUrl = window.location.protocol + "//" + window.location.host + "/";
+        function sweetalert(message,status)
+        {
+         if(status==="success")
+         {
+          Swal.fire({
+          title: status,
+          text: message,
+          icon: "success",
+          customClass: {
+           popup: 'success-box',
+           },
+        });
+         }
+         else
+         {
+          Swal.fire({
+          title: status,
+          text: message,
+          icon: "error",
+          customClass: {
+           popup: 'error-box',
+           },
+          });
+
+         }
+
+        }
+        $('.toast').toast();
+
+        //to show error or success message
+        function showMessage(message,status)
+        {
+          if(status== true)
+          {
+
+          }
+           else(status == false)
+          {
+            var existingToast = document.getElementById('dangerToast');
+            existingToast.querySelector('.toast-body').innerHTML = message;
+            $("#dangerToast").toast('show');
+          
+          }
+       
+
+
+        }
+        function FormatJSONData(targetfrom)
+        {
+          var arr= $(targetfrom).serializeArray();
+          var obj={};
+          for(var a=0; a<arr.length;a++)
+          {
+            if(arr[a].value=="")
+            {
+              return false;
+            }
+            obj[arr[a].name]=arr[a].value;
+          }
+          var string_data=JSON.stringify(obj);
+
+          return string_data;
+        }
       function loadTable()
       {
         $.ajax({
-          url:`http://practice-api.loc/api-get.php`,
+          url:baseUrl+`api-get.php`,
           type: "GET",
           success: function(data){
             if(data.status==="success")
@@ -162,7 +231,7 @@
     "</td>" +
     "<td class='align-middle'>" +
     "<button type='button' class='edit-btn btn btn-info' data-eid='"+value.id+"'style='background-color: #265073; margin-left: 32%; margin-top: 1%;'>Edit</button>" +
-    "<button type='button' class='btn btn-info' data-id='"+value.id+"'style='background-color: #BF3131; margin-top: 1%;'>Delete</button>" +
+    "<button type='button' class='delete-btn btn btn-info' data-id='"+value.id+"'style='background-color: #BF3131; margin-top: 1%;'>Delete</button>" +
     "</td>" +
     "</tr>");
                 // $('#load-data').append("<tr>"
@@ -183,31 +252,64 @@
       loadTable();
       $(document).on("click",".edit-btn",function()
       {
-
-        alert("clicked");
         $("#modal").show();
         var studentid= $(this).data("eid");
         var obj={sid:studentid};
         var myJSON= JSON.stringify(obj);
- 
-        $.ajax({
-          url:`http://practice-api.loc/get-single-record.php`,
-          type: "POST",
-          data:myJSON,
-          success: function(data){
-            $("#edit-id").val(data[0].id);
-            $("#edit-name").val(data[0].name);
-            $("#edit-age").val(data[0].age);
-            $("#edit-city").val(data[0].city);
+      });
+      $(document).on("click",".delete-btn",function()
+      {
+        var studentid= $(this).data("id");
+        var obj={id:studentid};
+        var myJSON= JSON.stringify(obj);
+        const swalWithBootstrapButtons = Swal.mixin({
+         customClass: {
+             confirmButton: "btn btn-success",
+             cancelButton: "btn btn-danger"
+           },
+           buttonsStyling: false
+         });
+         swalWithBootstrapButtons.fire({
+           title: "Are you sure?",
+           text: "You won't be able to revert this!",
+           icon: "warning",
+           showCancelButton: true,
+           confirmButtonText: "Yes, delete it!",
+           cancelButtonText: "No, cancel!",
+           reverseButtons: true
+         }).then((result) => {
+           if (result.isConfirmed) {
+            $.ajax({
+              url: baseUrl + "api-delete.php",
+              type: "DELETE",
+              data:myJSON,
+             success: function(data){
+               console.log(data,"hereeee");
+                sweetalert(data.message,data.status);
+                loadTable();
+              
+             },
+             error: function(data)
+             {
+              console.log(data,"hereeee");
+              sweetalert(data.message,data.status);
 
-            console.log(data);
-          },
-          error: function(data)
-          {
-            console.log("its here",data);
-          }
+             }
           });
-        // console.log(myJSON);
+            
+           } else if (
+             /* Read more about handling dismissals below */
+             result.dismiss === Swal.DismissReason.cancel
+           ) {
+            swalWithBootstrapButtons.fire({
+            title: "Cancelled",
+            text: "Your imaginary file is safe :)",
+            icon: "error"
+       });
+        }
+});
+     
+        console.log(myJSON);
       })
       $("#close-btn").on("click", function()
       {
@@ -216,15 +318,32 @@
       $("#save-edit").on("click", function(e)
       {
         e.preventDefault();
-        var arr= $("#editform").serializeArray();
-        var obj={};
-        for(var a=0; a<arr.length;a++)
-        {
-          obj[arr[a].name]=arr[a].name;
-        }
-        console.log(obj);
-        var string_data=JSON.stringify(obj);
-        console.log("stringifyed data",string_data);
+        var jsonformatteddata=FormatJSONData("#editform");
+          if(jsonformatteddata== false)
+          {
+            showMessage("all fields are required",false);
+          }
+          else
+          {
+            $.ajax({
+              url: baseUrl + "update-api.php",
+              type: "PUT",
+              data:jsonformatteddata,
+             success: function(data){
+              sweetalert(data.message,data.status);
+             setTimeout(function() {
+              window.location.href = baseUrl + "index.html";
+             }, 3000);
+
+          },
+          error: function(data)
+          {
+            sweetalert(data.message,data.status);
+          }
+          });
+
+          }
+    
       });
 
     });

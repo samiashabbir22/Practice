@@ -17,7 +17,7 @@ $id=$data['id'];
 
 include "config.php";
 
-$sql="DELETE * FROM students_data WHERE id='{$id}'";
+$sql="DELETE FROM students_data WHERE id='{$id}'";
 
 $result= mysqli_query($conn, $sql) or die("SQL query failed");
 
