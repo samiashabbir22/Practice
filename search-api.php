@@ -34,7 +34,7 @@ if(mysqli_num_rows($result)>0)
 else
 {
        echo json_encode(array(
-                       'message'=>'No Data Fetched, Try Again!',
+                       'message'=>'No Data Found!',
                        'code'=>204,
                        'status'=>'failed'));
    

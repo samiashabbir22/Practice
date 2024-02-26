@@ -23,7 +23,6 @@
 <body class="g-sidenav-show  bg-gray-200">
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <!-- Navbar -->
-
     <div class="container-fluid py-1 px-3">
       <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur" data-scroll="true">
         <a href="http://practice-api.loc/add-student.html"><button type="button" class="btn btn-dark" style="background-color: #009FBD;">Add Student</button></a> 
@@ -31,12 +30,12 @@
           <div class="ms-md-auto pe-md-3 d-flex align-items-center">
             <div class="input-group input-group-outline">
               <label class="form-label">Type here...</label>
-              <input type="text" class="form-control">
+              <input type="text" class="form-control" id="search">
             </div>
           </div>
           <ul class="navbar-nav  justify-content-end">
             <li class="nav-item d-flex align-items-center">
-              <a class="btn btn-outline-primary btn-sm mb-0 me-3" target="_blank" href="">Search</a>
+              <button class="btn btn-outline-primary btn-sm mb-0 me-3" target="_blank" href="">Search</button>
             </li>        
           </ul>
         </div>
@@ -124,6 +123,15 @@
             <button type="button" id="save-edit" class="btn btn btn-info" style="background-color: #E78895;">Save changes</button>
           </div>
         </div>
+      </div>
+    </div>
+    <div class="toast fade hide p-2 mt-2 bg-danger" role="alert" aria-live="assertive" id="dangerToast" aria-atomic="true" style="position: fixed; top: 10px; right: 10px; z-index: 1000" data-autohide="false">
+      <hr class="horizontal dark m-0">
+      <i class="fas fa-times text-md cursor-pointer" data-bs-dismiss="toast" aria-label="Close" style=" color:aliceblue; margin-left: 313px;"></i>
+      <div class="toast-body" style="    color: aliceblue;
+      font-style: italic;
+      font-size: medium;
+      font-weight: bold;">
       </div>
     </div>
   </main>
@@ -243,7 +251,7 @@
             }
             else
             {
-              $('#load-data').append("<tr><td>"+data.message+"</td></tr>")
+              $('#load-data').append("<tr><td colspan='4' style='text-align: center;'>"+data.message+"</td></tr>")
 
             }
             // console.log(data.status);
@@ -286,8 +294,7 @@
              success: function(data){
                console.log(data,"hereeee");
                 sweetalert(data.message,data.status);
-                loadTable();
-              
+                loadTable();              
              },
              error: function(data)
              {
@@ -334,17 +341,65 @@
              setTimeout(function() {
               window.location.href = baseUrl + "index.html";
              }, 3000);
-
-          },
-          error: function(data)
-          {
+           },
+            error: function(data)
+            {
             sweetalert(data.message,data.status);
-          }
+            }
           });
 
           }
     
       });
+      // search 
+      $("#search").on("keyup",function()
+      {
+         var search_term=$(this).val();
+
+         $('#load-data').html("");
+
+         $.ajax({
+              url: baseUrl + "search-api.php?search="+ search_term,
+              type: "GET",
+             success: function(data){
+              if(data.status==="success")
+            {
+              console.log(data);
+              $.each(data.data,function(key,value)
+              {
+                $('#load-data').append("<tr>" +
+    "<td>" +
+    "<div class='d-flex px-2 py-1'>" +
+    "<div class='d-flex flex-column justify-content-center'>" +
+    "<h6 class='mb-0 text-sm'>" + value.name + "</h6>" +
+    "</div>" +
+    "</div>" +
+    "</td>" +
+    "<td>" +
+    "<p class='text-xs font-weight-bold mb-0'>" + value.age + "</p>" +
+    "</td>" +
+    "<td class='align-middle text-center'>" +
+    "<span class='text-secondary text-xs font-weight-bold'>" + value.city + "</span>" +
+    "</td>" +
+    "<td class='align-middle'>" +
+    "<button type='button' class='edit-btn btn btn-info' data-eid='"+value.id+"'style='background-color: #265073; margin-left: 32%; margin-top: 1%;'>Edit</button>" +
+    "<button type='button' class='delete-btn btn btn-info' data-id='"+value.id+"'style='background-color: #BF3131; margin-top: 1%;'>Delete</button>" +
+    "</td>" +
+    "</tr>");
+                // $('#load-data').append("<tr>"
+                //                         +"<td>"+value.name+"</td>"+
+                //                         "<td>"+value.age+"</td>"+
+                //                         "<td>"+value.city+"</td>"+
+                //                         "</tr>")
+              })
+            }
+            else
+            {
+              $('#load-data').append("<tr><td colspan='4' style='text-align: center;'>"+data.message+"</td></tr>")
+            } 
+            }
+          });
+      })
 
     });
     var win = navigator.platform.indexOf('Win') > -1;
